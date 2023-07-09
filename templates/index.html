@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Weather Chatbot</title>
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-omujTGR7EgfRQLgTDEBn36AGC3deXz4B4CvSYi+hUcNIGnht1a6xUvDbi54FoZLu09oMYe+u9NBqBk7pPmPIIw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* CSS styles */
+
+        /* Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* Colors */
+        :root {
+            --primary-color: #ff6f61;
+            --secondary-color: #ffcc5c;
+            --text-color: #333333;
+            --background-color: #f9f9f9;
+        }
+
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 90%;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #dddddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .button-loader {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: button-loader-spin 0.6s linear infinite;
+            margin-right: 5px;
+        }
+
+        @keyframes button-loader-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #chatOutput {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: inline-block;
+            max-width: 80%;
+        }
+
+        .bot-message {
+            background-color: var(--secondary-color);
+            color: #ffffff;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            align-self: flex-end;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h1>Weather Chatbot</h1>
+        <form id="chatForm">
+            <label for="statement">Enter your statement:</label>
+            <input type="text" id="statement" name="statement" placeholder="E.g., What is the weather of New York?">
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="chatOutput"></div>
+    </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById("chatForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            submitStatement();
+        });
+
+        // Function to submit the statement to the server
+        function submitStatement() {
+            var statement = document.getElementById("statement").value;
+            var chatOutput = document.getElementById("chatOutput");
+
+            // Show loading icon
+            chatOutput.innerHTML = '<div class="loader"></div>';
+
+            fetch("/get_weather", {
+                method: "POST",
+                body: JSON.stringify({ statement: statement }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(function (response) {
+                    return response.text();
+                })
+                .then(function (data) {
+                    // Remove loading icon
+                    chatOutput.innerHTML = "";
+                    updateChatOutput(data);
+                })
+                .catch(function (error) {
+                    console.error("Error:", error);
+                    // Remove loading icon and show error message
+                    chatOutput.innerHTML = "<p>Error occurred. Please try again.</p>";
+                });
+        }
+
+        // Function to update the chat output
+        function updateChatOutput(message) {
+            var chatOutput = document.getElementById("chatOutput");
+            var response = JSON.parse(message);
+            var chatMessage = response.response;
+            chatOutput.innerHTML += "<p>" + chatMessage + "</p>";
+        }
+
+
+
+    </script>
+</body>
+
+</html>
