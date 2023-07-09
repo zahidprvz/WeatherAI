@@ -4,7 +4,7 @@ A web-based chatbot that provides weather information for different cities. User
 
 # Access it Live on WEB:
 
-http://www.pzmughal.pythonanywhere.com/
+[http://www.pzmughal.pythonanywhere.com/](http://pzmughal.pythonanywhere.com/)
 
 ## Features
 
