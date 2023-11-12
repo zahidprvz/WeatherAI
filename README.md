@@ -19,7 +19,7 @@ To run the Weather Chatbot locally, follow these steps:
 
 1. Clone the repository from GitHub:
 
-git clone https://github.com/zpmughal/WeatherAI.git
+git clone https://github.com/zahidparviz/WeatherAI.git
 
 
 2. Navigate to the project directory:
